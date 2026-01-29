@@ -1,0 +1,15 @@
+# Binaries
+main
+main.exe
+
+# OS Specifics
+.DS_Store
+Thumbs.db
+
+# Environment Config
+.env
+!.env.example
+
+# IDEs
+.vscode/
+.idea/
