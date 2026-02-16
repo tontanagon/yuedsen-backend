@@ -3,6 +3,8 @@ package repositories
 import (
 	"errors"
 	"yuedsen-backend/models"
+
+	"gorm.io/gorm"
 )
 
 type UserRepository interface {
@@ -12,33 +14,32 @@ type UserRepository interface {
 }
 
 type userRepository struct {
-	users []models.User // Mock database
+	db *gorm.DB
 }
 
-func NewUserRepository() UserRepository {
-	return &userRepository{
-		users: []models.User{
-			{ID: 1, Name: "John Doe", Email: "john@example.com"},
-			{ID: 2, Name: "Jane Smith", Email: "jane@example.com"},
-		},
-	}
+func NewUserRepository(db *gorm.DB) UserRepository {
+	return &userRepository{db: db}
 }
 
 func (r *userRepository) FindAll() ([]models.User, error) {
-	return r.users, nil
+	var users []models.User
+	result := r.db.Find(&users)
+	return users, result.Error
 }
 
 func (r *userRepository) FindByID(id uint) (*models.User, error) {
-	for _, u := range r.users {
-		if u.ID == id {
-			return &u, nil
+	var user models.User
+	result := r.db.First(&user, id)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, errors.New("user not found")
 		}
+		return nil, result.Error
 	}
-	return nil, errors.New("user not found")
+	return &user, nil
 }
 
 func (r *userRepository) Save(user *models.User) error {
-	user.ID = uint(len(r.users) + 1)
-	r.users = append(r.users, *user)
-	return nil
+	result := r.db.Create(user)
+	return result.Error
 }

@@ -12,7 +12,7 @@ RUN go mod download
 RUN go build -o main .
 
 FROM alpine:latest
-
+RUN apk add --no-cache tzdata
 WORKDIR /app
 
 COPY --from=builder /app/main .

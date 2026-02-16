@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS poses;
+DROP TABLE IF EXISTS pose_categories;
