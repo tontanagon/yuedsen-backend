@@ -1,0 +1,3 @@
+ALTER TABLE "poses" DROP COLUMN IF EXISTS "points";
+ALTER TABLE "poses" DROP COLUMN IF EXISTS "min_angle";
+ALTER TABLE "poses" DROP COLUMN IF EXISTS "max_angle";

@@ -16,7 +16,7 @@ func main() {
 	db := dbmanager.Connect()
 
 	// Auto Migrate
-	err := db.AutoMigrate(&models.User{}, &models.PoseCategory{}, &models.Pose{})
+	err := db.AutoMigrate(&models.User{}, &models.PoseCategory{}, &models.Pose{}, &models.Plan{}, &models.UserProcess{}, &models.UserToken{}, &models.PoseLandmark{})
 	if err != nil {
 		log.Fatalf("failed to migrate database: %v", err)
 	}
@@ -31,8 +31,13 @@ func main() {
 	// Initialize Controller
 	userController := controllers.NewUserController(userService)
 
+	// Initialize Pose Stack
+	poseRepo := repositories.NewPoseRepository(db)
+	poseService := services.NewPoseService(poseRepo)
+	poseController := controllers.NewPoseController(poseService)
+
 	// Initialize Router
-	r := routes.SetupRouter(userController)
+	r := routes.SetupRouter(userController, poseController)
 
 	// Run Server
 	r.Run(":8080")

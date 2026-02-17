@@ -10,7 +10,9 @@ import (
 type UserRepository interface {
 	FindAll() ([]models.User, error)
 	FindByID(id uint) (*models.User, error)
+	FindByEmail(email string) (*models.User, error)
 	Save(user *models.User) error
+	SaveUserToken(token *models.UserToken) error
 }
 
 type userRepository struct {

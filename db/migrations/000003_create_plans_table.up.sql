@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS plans (
+    id SERIAL PRIMARY KEY,
+    day INT NOT NULL,
+    pose_id INT NOT NULL,
+    duration INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_pose
+        FOREIGN KEY(pose_id) 
+        REFERENCES poses(id)
+        ON DELETE CASCADE
+);
