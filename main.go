@@ -9,14 +9,22 @@ import (
 	"yuedsen-backend/services"
 
 	"yuedsen-backend/repositories/dbmanager"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	// Load .env file
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("Warning: .env file not found, using environment variables")
+	}
+
 	// Database Connection
 	db := dbmanager.Connect()
 
 	// Auto Migrate
-	err := db.AutoMigrate(&models.User{}, &models.PoseCategory{}, &models.Pose{})
+	err = db.AutoMigrate(&models.User{}, &models.PoseCategory{}, &models.Pose{})
 	if err != nil {
 		log.Fatalf("failed to migrate database: %v", err)
 	}
