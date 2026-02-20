@@ -42,6 +42,25 @@ func (r *userRepository) FindByID(id uint) (*models.User, error) {
 }
 
 func (r *userRepository) Save(user *models.User) error {
-	result := r.db.Create(user)
+	// FirstOrCreate: สร้างใหม่ถ้าไม่มี, ไม่ทำอะไรถ้ามีอยู่แล้ว (ป้องกัน duplicate email error)
+	result := r.db.Where(models.User{Email: user.Email}).FirstOrCreate(user)
+	return result.Error
+}
+
+
+func (r *userRepository) FindByEmail(email string) (*models.User, error) {
+	var user models.User
+	result := r.db.Where("email = ?", email).First(&user)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, nil // user not found → return nil (not an error)
+		}
+		return nil, result.Error
+	}
+	return &user, nil
+}
+
+func (r *userRepository) SaveUserToken(token *models.UserToken) error {
+	result := r.db.Create(token)
 	return result.Error
 }

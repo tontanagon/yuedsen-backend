@@ -57,3 +57,42 @@ func (c *UserController) CreateUser(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusCreated, user)
 }
+
+func (c *UserController) GoogleCallback(ctx *gin.Context) {
+	var body struct {
+		AccessToken string `json:"access_token"`
+	}
+
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "missing access_token"})
+		return
+	}
+
+	token, err := c.service.GoogleCallback(body.AccessToken)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"token": token})
+}
+
+// GetToken — รับ email และ return JWT
+func (c *UserController) GetToken(ctx *gin.Context) {
+	var body struct {
+		Email string `json:"email"`
+	}
+
+	if err := ctx.ShouldBindJSON(&body); err != nil || body.Email == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "missing email"})
+		return
+	}
+
+	token, err := c.service.GetTokenByEmail(body.Email)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"token": token})
+}

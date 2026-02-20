@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"yuedsen-backend/models"
@@ -19,6 +20,7 @@ type UserService interface {
 	GetUserByID(id uint) (*models.User, error)
 	CreateUser(user *models.User) error
 	GoogleCallback(accessToken string) (string, error)
+	GetTokenByEmail(email string) (string, error) // สร้าง JWT จาก email
 }
 
 // userService is the concrete implementation of UserService
@@ -102,7 +104,11 @@ func (s *userService) GoogleCallback(accessToken string) (string, error) {
 	})
 
 	// TODO: Move secret to env
-	tokenString, err := jwtToken.SignedString([]byte("your_secret_key"))
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		secret = "fallback_secret_for_dev"
+	}
+	tokenString, err := jwtToken.SignedString([]byte(secret))
 	if err != nil {
 		return "", errors.New("failed to generate jwt token")
 	}
@@ -110,3 +116,30 @@ func (s *userService) GoogleCallback(accessToken string) (string, error) {
 	return tokenString, nil
 }
 
+func (s *userService) GetTokenByEmail(email string) (string, error) {
+	user, err := s.repo.FindByEmail(email)
+	if err != nil {
+		return "", err
+	}
+	if user == nil {
+		return "", errors.New("user not found")
+	}
+
+	// Generate JWT with user_id, email, name
+	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": user.ID,
+		"email":   user.Email,
+		"name":    user.Name,
+		"exp":     time.Now().Add(time.Hour * 72).Unix(),
+	})
+
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		secret = "fallback_secret_for_dev"
+	}
+	tokenString, err := jwtToken.SignedString([]byte(secret))
+	if err != nil {
+		return "", errors.New("failed to generate jwt token")
+	}
+	return tokenString, nil
+}
