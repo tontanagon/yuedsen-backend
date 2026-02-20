@@ -7,7 +7,7 @@ import (
 type Pose struct {
 	ID              uint           `gorm:"primaryKey" json:"id"`
 	PoseName        string         `gorm:"type:varchar(255);not null" json:"pose_name"`
-	PoseImage       []byte         `gorm:"type:bytea" json:"pose_image,omitempty"` // Storing Blob
+	PoseImage       string         `gorm:"type:text" json:"pose_image,omitempty"` // Storing URL or Base64 Text
 	PoseDescription string         `gorm:"type:text" json:"pose_description"`
 	PoseCondition 	string         `gorm:"type:text" json:"pose_condition"`
 

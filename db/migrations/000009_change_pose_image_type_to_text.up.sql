@@ -1,0 +1,1 @@
+ALTER TABLE poses ALTER COLUMN pose_image TYPE TEXT;
