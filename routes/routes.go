@@ -49,7 +49,7 @@ func JWTMiddleware() gin.HandlerFunc {
 	}
 }
 
-func SetupRouter(userController *controllers.UserController, poseController *controllers.PoseController) *gin.Engine {
+func SetupRouter(userController *controllers.UserController, poseController *controllers.PoseController, gameController *controllers.GameController) *gin.Engine {
 	r := gin.Default()
 
 	// CORS Middleware
@@ -81,10 +81,14 @@ func SetupRouter(userController *controllers.UserController, poseController *con
 		protectedUsers.GET("", userController.GetUsers)       // list all users
 		protectedUsers.GET("/:id", userController.GetUser)    // get user by id
 
-		// Poses (protected)
 		protectedPoses := protected.Group("/poses")
 		protectedPoses.GET("", poseController.GetPoses)
 		protectedPoses.POST("", poseController.CreatePose)
+
+		// Game (protected)
+		protectedGame := protected.Group("/game")
+		protectedGame.GET("/plan", gameController.GetCurrentGamePlan)
+		protectedGame.POST("/complete", gameController.CompleteDay)
 	}
 
 	return r

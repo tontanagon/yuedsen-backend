@@ -24,11 +24,7 @@ type CreatePoseRequest struct {
 	
 	// Rule-based checking (Optional)
 	PosePoint       string  `json:"pose_point"` // [11, 13, 15]
-	PoseMin         float64 `json:"pose_min"`
-	PoseMax         float64 `json:"pose_max"`
 
-	PoseCategoryID  uint    `json:"pose_category_id" binding:"required"`
-	PoseAccuracy    float64 `json:"pose_accuracy"`
 	Status          string  `json:"status"`
 	
 	// Landmarks for Similarity Checking (Optional)
@@ -54,10 +50,6 @@ func (c *PoseController) CreatePose(ctx *gin.Context) {
 		PoseDescription: req.PoseDescription,
 		PoseCondition:   req.PoseCondition,
 		PosePoint:       req.PosePoint,
-		PoseMin:         req.PoseMin,
-		PoseMax:         req.PoseMax,
-		PoseCategoryID:  req.PoseCategoryID,
-		PoseAccuracy:    req.PoseAccuracy,
 		Status:          req.Status,
 	}
 

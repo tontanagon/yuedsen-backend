@@ -1,0 +1,4 @@
+ALTER TABLE poses ADD COLUMN pose_min FLOAT;
+ALTER TABLE poses ADD COLUMN pose_max FLOAT;
+ALTER TABLE plans DROP COLUMN pose_min;
+ALTER TABLE plans DROP COLUMN pose_max;

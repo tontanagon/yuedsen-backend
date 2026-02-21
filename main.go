@@ -44,8 +44,13 @@ func main() {
 	poseService := services.NewPoseService(poseRepo)
 	poseController := controllers.NewPoseController(poseService)
 
+	// Initialize Game Stack
+	gameRepo := repositories.NewGameRepository(db)
+	gameService := services.NewGameService(gameRepo)
+	gameController := controllers.NewGameController(gameService)
+
 	// Initialize Router
-	r := routes.SetupRouter(userController, poseController)
+	r := routes.SetupRouter(userController, poseController, gameController)
 
 	// Run Server
 	r.Run(":8080")
