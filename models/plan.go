@@ -12,7 +12,7 @@ type Plan struct {
 	PoseAccuracy float64   `gorm:"type:float" json:"pose_accuracy"`
 	PoseMin      float64   `gorm:"type:float" json:"pose_min"`
 	PoseMax      float64   `gorm:"type:float" json:"pose_max"`
-	PoseCategoryID uint    `gorm:"not null" json:"pose_category_id"`
+	PoseCategoryID uint    `gorm:"not null;default:1" json:"pose_category_id"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 

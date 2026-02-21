@@ -8,8 +8,8 @@ import (
 )
 
 type GameService interface {
-	GetGamePlanForUser(userID uint) ([]models.Plan, *models.UserProcess, bool, error)
-	CompleteDayForUser(userID uint) error
+	GetGamePlanForUser(userID uint, categoryID uint) ([]models.Plan, *models.UserProcess, bool, error)
+	CompleteDayForUser(userID uint, categoryID uint) error
 }
 
 type gameService struct {
@@ -22,8 +22,8 @@ func NewGameService(repo repositories.GameRepository) GameService {
 	}
 }
 
-func (s *gameService) GetGamePlanForUser(userID uint) ([]models.Plan, *models.UserProcess, bool, error) {
-	process, err := s.repo.GetUserProcess(userID)
+func (s *gameService) GetGamePlanForUser(userID uint, categoryID uint) ([]models.Plan, *models.UserProcess, bool, error) {
+	process, err := s.repo.GetUserProcess(userID, categoryID)
 	if err != nil {
 		return nil, nil, false, err
 	}
@@ -32,7 +32,7 @@ func (s *gameService) GetGamePlanForUser(userID uint) ([]models.Plan, *models.Us
 	if process == nil {
 		newProcess := &models.UserProcess{
 			UserID:         userID,
-			PoseCategoryID: 1, // Defaulting to category 1
+			PoseCategoryID: categoryID, 
 			Progress:       1, // Start at day 1
 			Status:         "in_progress",
 			TotalScore:     0,
@@ -50,7 +50,7 @@ func (s *gameService) GetGamePlanForUser(userID uint) ([]models.Plan, *models.Us
 	// if CreatedAt == UpdatedAt, we shouldn't block, but checking Progress > 1 already handles this!
 
 	// Fetch plans logic based on process.Progress (which represents the Day)
-	plans, err := s.repo.GetPlansByDay(process.Progress)
+	plans, err := s.repo.GetPlansByDay(process.Progress, process.PoseCategoryID)
 	if err != nil {
 		return nil, nil, false, errors.New("failed to fetch game plan")
 	}
@@ -58,8 +58,8 @@ func (s *gameService) GetGamePlanForUser(userID uint) ([]models.Plan, *models.Us
 	return plans, process, isBlocked, nil
 }
 
-func (s *gameService) CompleteDayForUser(userID uint) error {
-	process, err := s.repo.GetUserProcess(userID)
+func (s *gameService) CompleteDayForUser(userID uint, categoryID uint) error {
+	process, err := s.repo.GetUserProcess(userID, categoryID)
 	if err != nil {
 		return err
 	}

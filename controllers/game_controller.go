@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"yuedsen-backend/services"
 
@@ -26,8 +27,18 @@ func (c *GameController) GetCurrentGamePlan(ctx *gin.Context) {
 	}
 
 	userID := uint(userIDFloat.(float64)) // JSON parses numbers as float64
+	
+	// Default to category 1 if not provided or invalid
+	categoryID := uint(1)
+	catQuery := ctx.Query("category_id")
+	if catQuery != "" {
+		var parsedCat uint
+		if _, err := fmt.Sscan(catQuery, &parsedCat); err == nil {
+			categoryID = parsedCat
+		}
+	}
 
-	plans, process, isBlocked, err := c.service.GetGamePlanForUser(userID)
+	plans, process, isBlocked, err := c.service.GetGamePlanForUser(userID, categoryID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -49,7 +60,16 @@ func (c *GameController) CompleteDay(ctx *gin.Context) {
 
 	userID := uint(userIDFloat.(float64))
 
-	err := c.service.CompleteDayForUser(userID)
+	// Need to parse body for category_id
+	var body struct {
+		CategoryID uint `json:"category_id"`
+	}
+	categoryID := uint(1) // default fallback
+	if err := ctx.ShouldBindJSON(&body); err == nil && body.CategoryID != 0 {
+		categoryID = body.CategoryID
+	}
+
+	err := c.service.CompleteDayForUser(userID, categoryID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

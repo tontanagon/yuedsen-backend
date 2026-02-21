@@ -8,10 +8,10 @@ import (
 )
 
 type GameRepository interface {
-	GetUserProcess(userID uint) (*models.UserProcess, error)
+	GetUserProcess(userID uint, categoryID uint) (*models.UserProcess, error)
 	CreateUserProcess(process *models.UserProcess) error
 	UpdateUserProcess(process *models.UserProcess) error
-	GetPlansByDay(day int) ([]models.Plan, error)
+	GetPlansByDay(day int, categoryID uint) ([]models.Plan, error)
 }
 
 type gameRepository struct {
@@ -22,10 +22,10 @@ func NewGameRepository(db *gorm.DB) GameRepository {
 	return &gameRepository{db: db}
 }
 
-func (r *gameRepository) GetUserProcess(userID uint) (*models.UserProcess, error) {
+func (r *gameRepository) GetUserProcess(userID uint, categoryID uint) (*models.UserProcess, error) {
 	var process models.UserProcess
-	// For simplicity, just get the first active user process, or sort by updated_at
-	result := r.db.Where("user_id = ?", userID).Order("updated_at desc").First(&process)
+	// Get the active process for this specific category
+	result := r.db.Where("user_id = ? AND pose_category_id = ?", userID, categoryID).Order("updated_at desc").First(&process)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, nil // not found
@@ -45,10 +45,10 @@ func (r *gameRepository) UpdateUserProcess(process *models.UserProcess) error {
 	return result.Error
 }
 
-func (r *gameRepository) GetPlansByDay(day int) ([]models.Plan, error) {
+func (r *gameRepository) GetPlansByDay(day int, categoryID uint) ([]models.Plan, error) {
 	var plans []models.Plan
 	// Preload "Pose", and you might also want to Preload "Pose.PoseCategory" if needed
-	result := r.db.Preload("Pose").Where("day = ?", day).Find(&plans)
+	result := r.db.Preload("Pose").Where("day = ? AND pose_category_id = ?", day, categoryID).Find(&plans)
 	if result.Error != nil {
 		return nil, result.Error
 	}
