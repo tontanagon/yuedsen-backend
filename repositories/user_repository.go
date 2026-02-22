@@ -13,6 +13,7 @@ type UserRepository interface {
 	FindByEmail(email string) (*models.User, error)
 	Save(user *models.User) error
 	SaveUserToken(token *models.UserToken) error
+	FindAllWithProcesses() ([]models.User, error)
 }
 
 type userRepository struct {
@@ -27,6 +28,15 @@ func (r *userRepository) FindAll() ([]models.User, error) {
 	var users []models.User
 	result := r.db.Find(&users)
 	return users, result.Error
+}
+
+func (r *userRepository) FindAllWithProcesses() ([]models.User, error) {
+	var users []models.User
+	result := r.db.Find(&users)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return users, nil
 }
 
 func (r *userRepository) FindByID(id uint) (*models.User, error) {
