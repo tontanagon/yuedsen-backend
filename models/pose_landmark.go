@@ -9,5 +9,5 @@ type PoseLandmark struct {
 	Z             float64 `gorm:"type:float;not null" json:"z"`
 	Visibility    float64 `gorm:"type:float" json:"visibility"`
 	
-	Pose Pose `gorm:"foreignKey:PoseID" json:"pose"`
+	Pose Pose `gorm:"foreignKey:PoseID" json:"-"`
 }
