@@ -17,4 +17,7 @@ type Pose struct {
 	Status          string         `gorm:"type:varchar(50)" json:"status"`
 	CreatedAt       time.Time      `json:"created_at"`
 	UpdatedAt       time.Time      `json:"updated_at"`
+
+	// Has-many relationship for landmark-based comparison
+	Landmarks []PoseLandmark `gorm:"foreignKey:PoseID" json:"landmarks,omitempty"`
 }

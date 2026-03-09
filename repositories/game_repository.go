@@ -48,7 +48,7 @@ func (r *gameRepository) UpdateUserProcess(process *models.UserProcess) error {
 func (r *gameRepository) GetPlansByDay(day int, categoryID uint) ([]models.Plan, error) {
 	var plans []models.Plan
 	// Preload "Pose", and you might also want to Preload "Pose.PoseCategory" if needed
-	result := r.db.Preload("Pose").Where("day = ? AND pose_category_id = ?", day, categoryID).Find(&plans)
+	result := r.db.Preload("Pose").Preload("Pose.Landmarks").Where("day = ? AND pose_category_id = ?", day, categoryID).Order("id asc").Find(&plans)
 	if result.Error != nil {
 		return nil, result.Error
 	}
